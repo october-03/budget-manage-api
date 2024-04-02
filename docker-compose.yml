@@ -1,0 +1,28 @@
+version: '3.9'
+
+services:
+  api:
+    container_name: budget-api
+    build: .
+    ports:
+      - "63364:3000"
+    networks:
+      - budget-net
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+
+  db:
+    container_name: budget-db
+    image: postgres:16.2-alpine3.19
+    environment:
+      POSTGRES_USER: budget-manager
+      POSTGRES_PASSWORD: BudgetManager123
+      POSTGRES_DB: budget
+    ports:
+      - "63365:5432"
+    networks:
+      - budget-net
+networks:
+  budget-net:
