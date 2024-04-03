@@ -15,5 +15,6 @@ export class PaymentInfo {
   paymentDate: number;
 
   @ManyToOne(() => BankAccount, (account) => account.cards, { nullable: true })
+  @JoinColumn({ name: 'payment_account_id' })
   paymentAccount: BankAccount;
 }

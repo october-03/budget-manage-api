@@ -14,7 +14,7 @@ export class BankAccount {
   balance: number;
 
   @CreateDateColumn()
-  createdAt: Date;
+  created_at: Date;
 
   @OneToMany(() => PaymentInfo, (paymentInfo) => paymentInfo.paymentAccount, { nullable: true })
   cards: PaymentInfo[];

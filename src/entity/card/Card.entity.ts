@@ -14,5 +14,5 @@ export class Card {
   paymentInfo: PaymentInfo;
 
   @CreateDateColumn()
-  createdAt: Date;
+  created_at: Date;
 }

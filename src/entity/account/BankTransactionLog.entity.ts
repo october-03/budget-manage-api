@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { TransactionType } from '../../dto/TransactionType.enum';
 import { BankAccount } from './BankAccount.entity';
 
@@ -14,6 +14,7 @@ export class BankTransactionLog {
   amount: number;
 
   @ManyToOne(() => BankAccount, (account) => account.transactionLogs)
+  @JoinColumn({ name: 'account_id' })
   account: BankAccount;
 
   @Column({ name: 'transaction_date' })
