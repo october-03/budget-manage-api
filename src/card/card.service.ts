@@ -1,9 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AccountService } from 'src/account/account.service';
+import { AddCardTransactionDto } from 'src/dto/AddCardTransaction.dto';
+import { CardPaymentType } from 'src/dto/CardPaymentType.dto';
 import { RegisterCardDto } from 'src/dto/RegisterCard.dto';
 import { Card } from 'src/entity/card/Card.entity';
+import { CardTransactionLog } from 'src/entity/card/CardTransactionLog.entity';
 import { PaymentInfo } from 'src/entity/card/PaymentInfo.entity';
+import InstallmentCalculator from 'src/util/InstallmentCalculator';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -14,6 +18,9 @@ export class CardService {
 
     @InjectRepository(PaymentInfo)
     private paymentInfoRepository: Repository<PaymentInfo>,
+
+    @InjectRepository(CardTransactionLog)
+    private cardTransactionLogRepository: Repository<CardTransactionLog>,
 
     @Inject(AccountService)
     private readonly accountService: AccountService,
@@ -57,5 +64,39 @@ export class CardService {
     await this.cardRepository.update(card.id, { paymentInfo });
 
     return { ...card, paymentInfo };
+  }
+
+  async addTransaction(req: AddCardTransactionDto): Promise<Card> {
+    const card = await this.findCardById(req.cardId);
+
+    if (!card) {
+      throw new Error('C0002');
+    }
+
+    const paymentType = CardPaymentType[req.paymentType];
+
+    if (paymentType === CardPaymentType.FULL) {
+      req.installmentMonths = 1;
+    }
+
+    const installmentsAmounts = InstallmentCalculator(req.amount, req.installmentMonths, req.transactionDate);
+
+    for (const [index, installmentsAmount] of installmentsAmounts.entries()) {
+      const transactionLog = this.cardTransactionLogRepository.create({
+        amount: installmentsAmount.amount,
+        card,
+        paymentType,
+        transactionDate: installmentsAmount.date,
+        description: `${req.description}`,
+      });
+
+      if (installmentsAmounts.length > 1) {
+        transactionLog.description = `${req.description} 할부(${index + 1} / ${req.installmentMonths})`;
+      }
+
+      await this.cardTransactionLogRepository.save(transactionLog);
+    }
+
+    return card;
   }
 }
