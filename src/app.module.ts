@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { TypeOrmConfigService } from './config/typeorm.config';
 import { AccountModule } from './account/account.module';
 import { CardModule } from './card/card.module';
+import { SearchModule } from './search/search.module';
 
 @Module({
   imports: [
@@ -17,7 +18,8 @@ import { CardModule } from './card/card.module';
       useClass: TypeOrmConfigService,
     }),
     AccountModule,
-    CardModule
+    CardModule,
+    SearchModule
   ],
   controllers: [AppController],
   providers: [AppService],
