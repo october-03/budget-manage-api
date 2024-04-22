@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { AccountService } from './account.service';
 import { RegisterAccountDto } from '../dto/RegisterAccount.dto';
 import { DefaultResponseDto } from '../dto/DefaultResponse.dto';
@@ -36,6 +36,25 @@ export class AccountController {
       const response = new DefaultResponseDto<BankAccount>();
       response.data = transaction;
       response.message = 'Transaction completed successfully';
+      response.resultCode = '0000';
+      return response;
+    } catch (e) {
+      const error = ErrorHandler[e.message];
+      const response = new DefaultResponseDto<null>();
+      response.data = null;
+      response.message = error;
+      response.resultCode = e.message;
+      return response;
+    }
+  }
+
+  @Get('account')
+  async getAccount(): Promise<DefaultResponseDto<BankAccount>> {
+    try {
+      const accounts = await this.accountService.getAccount('토스뱅크');
+      const response = new DefaultResponseDto<BankAccount>();
+      response.data = accounts;
+      response.message = '';
       response.resultCode = '0000';
       return response;
     } catch (e) {

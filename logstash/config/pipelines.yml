@@ -1,3 +1,0 @@
-- pipeline.id: postgresql
-  path.config: "/usr/share/logstash/pipeline/postgres.conf"
-  pipeline.workers: 1
