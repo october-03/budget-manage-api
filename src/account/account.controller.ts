@@ -48,13 +48,13 @@ export class AccountController {
     }
   }
 
-  @Get('account')
-  async getAccount(): Promise<DefaultResponseDto<BankAccount>> {
+  @Get('all')
+  async getAccount(): Promise<DefaultResponseDto<BankAccount[]>> {
     try {
-      const accounts = await this.accountService.getAccount('토스뱅크');
-      const response = new DefaultResponseDto<BankAccount>();
+      const accounts = await this.accountService.getAccount();
+      const response = new DefaultResponseDto<BankAccount[]>();
       response.data = accounts;
-      response.message = '';
+      response.message = "Account's data retrieved successfully";
       response.resultCode = '0000';
       return response;
     } catch (e) {

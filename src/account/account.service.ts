@@ -70,11 +70,9 @@ export class AccountService {
     return this.bankAccountRepository.save(bankAccount);
   }
 
-  async getAccount(name: string): Promise<BankAccount> {
-    const result = await this.bankAccountRepository.find({ where: { name } });
+  async getAccount(): Promise<BankAccount[]> {
+    const result = await this.bankAccountRepository.find();
 
-    console.log(result);
-
-    return result[0];
+    return result;
   }
 }
