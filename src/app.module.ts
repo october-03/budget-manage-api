@@ -7,6 +7,7 @@ import { TypeOrmConfigService } from './config/typeorm.config';
 import { AccountModule } from './account/account.module';
 import { CardModule } from './card/card.module';
 import { SearchModule } from './search/search.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -19,7 +20,8 @@ import { SearchModule } from './search/search.module';
     }),
     AccountModule,
     CardModule,
-    SearchModule
+    SearchModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
