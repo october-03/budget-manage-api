@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { SearchService } from './search.service';
 import { ElasticsearchModule } from '@nestjs/elasticsearch';
+import { EsService } from './es.service';
 
 @Module({
   imports: [
@@ -18,7 +19,7 @@ import { ElasticsearchModule } from '@nestjs/elasticsearch';
       }),
     }),
   ],
-  providers: [SearchService],
+  providers: [SearchService, EsService],
   exports: [SearchService],
 })
 export class SearchModule {}

@@ -4,9 +4,12 @@ import { AccountService } from 'src/account/account.service';
 import { AddCardTransactionDto } from 'src/dto/AddCardTransaction.dto';
 import { CardPaymentType } from 'src/dto/CardPaymentType.dto';
 import { RegisterCardDto } from 'src/dto/RegisterCard.dto';
+import { SearchCardTransactionLogsDto } from 'src/dto/SearchCardTransactionLogs.dto';
+import { SearchDetailCardStatsDto } from 'src/dto/SearchDetailCardStats.dto';
 import { Card } from 'src/entity/card/Card.entity';
 import { CardTransactionLog } from 'src/entity/card/CardTransactionLog.entity';
 import { PaymentInfo } from 'src/entity/card/PaymentInfo.entity';
+import { SearchService } from 'src/search/search.service';
 import InstallmentCalculator from 'src/util/InstallmentCalculator';
 import { Repository } from 'typeorm';
 
@@ -24,6 +27,8 @@ export class CardService {
 
     @Inject(AccountService)
     private readonly accountService: AccountService,
+
+    private readonly searchService: SearchService,
   ) {}
 
   async findCardById(id: number): Promise<Card> {
@@ -98,5 +103,10 @@ export class CardService {
     }
 
     return card;
+  }
+
+  async searchTransactionLogs(req: SearchDetailCardStatsDto): Promise<SearchCardTransactionLogsDto> {
+    const res = await this.searchService.searchDetailCardStats(req);
+    return res;
   }
 }
