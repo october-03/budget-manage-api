@@ -10,6 +10,7 @@ import { SearchMonthlyStatDto } from 'src/dto/SearchMonthlyAccountStat.dto';
 import { SearchDetailStatsDto } from 'src/dto/SearchDetailStats.dto';
 import { SearchBankTransactionLogsDto } from 'src/dto/SearcrBankTransactionLogs.dto';
 import { SearchAllStatsDto } from 'src/dto/SearchAllStats.dto';
+import { RegisterAccountDto } from 'src/dto/RegisterAccount.dto';
 
 @Injectable()
 export class AccountService {
@@ -35,15 +36,15 @@ export class AccountService {
     return this.bankAccountRepository.findOne({ where: { name } });
   }
 
-  async registerAccount(name: string): Promise<BankAccount> {
-    let bankAccount = await this.getBankAccountByName(name);
+  async registerAccount(req: RegisterAccountDto): Promise<BankAccount> {
+    let bankAccount = await this.getBankAccountByName(req.name);
     if (bankAccount) {
       throw new Error('A0001');
     }
 
     bankAccount = new BankAccount();
-    bankAccount.name = name;
-    bankAccount.balance = 0;
+    bankAccount.name = req.name;
+    bankAccount.balance = req.initBalance;
 
     return this.bankAccountRepository.save(bankAccount);
   }

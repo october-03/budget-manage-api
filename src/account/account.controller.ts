@@ -16,7 +16,7 @@ export class AccountController {
   @Post('register')
   async registerAccount(@Body() req: RegisterAccountDto): Promise<DefaultResponseDto<BankAccount>> {
     try {
-      const bankAccount = await this.accountService.registerAccount(req.name);
+      const bankAccount = await this.accountService.registerAccount(req);
       const response = new DefaultResponseDto<BankAccount>();
       response.data = bankAccount;
       response.message = 'Account created successfully';
