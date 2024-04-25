@@ -1,5 +1,5 @@
-FROM node:18.20.0-alpine3.19
+FROM node:18.20.0
 
 WORKDIR /app
 
-CMD ["npm", "run", "start:dev"]
+CMD ["sh", "-c", "./init.sh && npm run start:dev"]
