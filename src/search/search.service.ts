@@ -5,6 +5,7 @@ import { EsService } from './es.service';
 import { SearchCardTransactionLogsDto } from 'src/dto/SearchCardTransactionLogs.dto';
 import { SearchDetailStatsDto } from 'src/dto/SearchDetailStats.dto';
 import { SearchBankTransactionLogsDto } from 'src/dto/SearcrBankTransactionLogs.dto';
+import { SearchAllStatsDto } from 'src/dto/SearchAllStats.dto';
 
 @Injectable()
 export class SearchService {
@@ -101,5 +102,21 @@ export class SearchService {
     };
 
     return result;
+  }
+
+  async searchCardList(): Promise<SearchAllStatsDto> {
+    const res = await this.esService.searchCardList();
+
+    const data = res.aggregations.card_id.buckets.map((bucket) => {
+      return {
+        balance: bucket.total_amount.value,
+        id: bucket.key,
+      };
+    });
+
+    return {
+      card: data,
+      bank: [],
+    };
   }
 }

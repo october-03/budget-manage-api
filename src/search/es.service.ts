@@ -4,6 +4,7 @@ import { ElasticSearchIndex } from 'src/dto/ElasticSearchIndex.enum';
 import { SearchDetailStatsDto } from 'src/dto/SearchDetailStats.dto';
 import { BankTransactionLog } from 'src/entity/account/BankTransactionLog.entity';
 import { CardTransactionLog } from 'src/entity/card/CardTransactionLog.entity';
+import * as dayjs from 'dayjs';
 
 @Injectable()
 export class EsService {
@@ -295,6 +296,41 @@ export class EsService {
 
     return searchRes;
   }
+
+  async searchCardList(): Promise<SearchAllStatsResponse> {
+    const startDate = dayjs().startOf('month').format('YYYY-MM-DD');
+    const endDate = dayjs().endOf('month').format('YYYY-MM-DD');
+
+    const res: SearchAllStatsResponse = await this.elasticsearchService.search({
+      index: ElasticSearchIndex.CARD_TRANSACTION,
+      body: {
+        query: {
+          range: {
+            transaction_date: {
+              gte: startDate,
+              lte: endDate,
+            },
+          },
+        },
+        aggs: {
+          card_id: {
+            terms: {
+              field: 'card_id',
+            },
+            aggs: {
+              total_amount: {
+                sum: {
+                  field: 'amount',
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return res;
+  }
 }
 
 interface SearchMonthlyAccountStatsResponse {
@@ -406,6 +442,22 @@ interface SearchTransactionLogsResponse {
     };
     total_sum?: {
       value: number;
+    };
+  };
+}
+
+interface SearchAllStatsResponse {
+  aggregations?: {
+    card_id?: {
+      doc_count_error_upper_bound: number;
+      sum_other_doc_count: number;
+      buckets: {
+        key: number;
+        doc_count: number;
+        total_amount: {
+          value: number;
+        };
+      }[];
     };
   };
 }

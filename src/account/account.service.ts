@@ -9,6 +9,7 @@ import { SearchService } from 'src/search/search.service';
 import { SearchMonthlyStatDto } from 'src/dto/SearchMonthlyAccountStat.dto';
 import { SearchDetailStatsDto } from 'src/dto/SearchDetailStats.dto';
 import { SearchBankTransactionLogsDto } from 'src/dto/SearcrBankTransactionLogs.dto';
+import { SearchAllStatsDto } from 'src/dto/SearchAllStats.dto';
 
 @Injectable()
 export class AccountService {
@@ -86,5 +87,22 @@ export class AccountService {
   async searchTransactionLogs(req: SearchDetailStatsDto): Promise<SearchBankTransactionLogsDto> {
     const res = await this.searchService.searchDetailBankStats(req);
     return res;
+  }
+
+  async getMonthAllStats(): Promise<SearchAllStatsDto> {
+    const cardStats = await this.searchService.searchCardList();
+
+    const accounts = await this.bankAccountRepository.find();
+
+    const bankStats = accounts.map((account) => {
+      return {
+        balance: account.balance,
+        id: account.id,
+      };
+    });
+
+    cardStats.bank = bankStats;
+
+    return cardStats;
   }
 }

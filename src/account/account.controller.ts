@@ -51,25 +51,6 @@ export class AccountController {
     }
   }
 
-  @Get('all')
-  async getAccount(): Promise<DefaultResponseDto<BankAccount[]>> {
-    try {
-      const accounts = await this.accountService.getAccount();
-      const response = new DefaultResponseDto<BankAccount[]>();
-      response.data = accounts;
-      response.message = "Account's data retrieved successfully";
-      response.resultCode = '0000';
-      return response;
-    } catch (e) {
-      const error = ErrorHandler[e.message];
-      const response = new DefaultResponseDto<null>();
-      response.data = null;
-      response.message = error;
-      response.resultCode = e.message;
-      return response;
-    }
-  }
-
   @Get('monthly-stats/:date')
   async getMonthlyStats(@Param('date') date: string): Promise<DefaultResponseDto<SearchMonthlyStatDto>> {
     try {
@@ -113,5 +94,24 @@ export class AccountController {
     response.resultCode = '0000';
 
     return response;
+  }
+
+  @Get('all')
+  async getAllStats(): Promise<DefaultResponseDto<any>> {
+    try {
+      const stats = await this.accountService.getMonthAllStats();
+      const response = new DefaultResponseDto<any>();
+      response.data = stats;
+      response.message = 'Stats retrieved successfully';
+      response.resultCode = '0000';
+      return response;
+    } catch (e) {
+      const error = ErrorHandler[e.message];
+      const response = new DefaultResponseDto<null>();
+      response.data = null;
+      response.message = error;
+      response.resultCode = e.message;
+      return response;
+    }
   }
 }
