@@ -64,7 +64,7 @@ export class CardController {
       page,
       searchKeyword,
       transaction_type: CardPaymentType[transaction_type],
-      card_id,
+      id: card_id,
     });
 
     response.data = res;

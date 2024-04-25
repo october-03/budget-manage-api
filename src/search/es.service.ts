@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { ElasticsearchService } from '@nestjs/elasticsearch';
 import { ElasticSearchIndex } from 'src/dto/ElasticSearchIndex.enum';
-import { SearchDetailCardStatsDto } from 'src/dto/SearchDetailCardStats.dto';
+import { SearchDetailStatsDto } from 'src/dto/SearchDetailStats.dto';
+import { BankTransactionLog } from 'src/entity/account/BankTransactionLog.entity';
 import { CardTransactionLog } from 'src/entity/card/CardTransactionLog.entity';
 
 @Injectable()
@@ -129,7 +130,7 @@ export class EsService {
     return searchRes;
   }
 
-  async searchDetailCardStats(req: SearchDetailCardStatsDto): Promise<SearchTransactionLogsResponse> {
+  async searchDetailCardStats(req: SearchDetailStatsDto): Promise<SearchPaymentLogsResponse> {
     const queryConditions = [];
 
     if (req.searchKeyword) {
@@ -140,8 +141,8 @@ export class EsService {
       queryConditions.push(`payment_type:${req.transaction_type}`);
     }
 
-    if (req.card_id) {
-      queryConditions.push(`card_id:${req.card_id}`);
+    if (req.id) {
+      queryConditions.push(`card_id:${req.id}`);
     }
 
     const queryString = queryConditions.join(' AND ');
@@ -154,7 +155,7 @@ export class EsService {
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     //@ts-ignore
-    const searchRes: SearchTransactionLogsResponse = await this.elasticsearchService.search<CardTransactionLog>({
+    const searchRes: SearchPaymentLogsResponse = await this.elasticsearchService.search<CardTransactionLog>({
       index: ElasticSearchIndex.CARD_TRANSACTION,
       body: {
         from: req.page * 10,
@@ -190,6 +191,89 @@ export class EsService {
             filter: {
               term: {
                 'payment_type.keyword': 'INSTALLMENTS',
+              },
+            },
+            aggs: {
+              total_amount: {
+                sum: {
+                  field: 'amount',
+                },
+              },
+            },
+          },
+          total_sum: {
+            sum: {
+              field: 'amount',
+            },
+          },
+        },
+      },
+    });
+
+    return searchRes;
+  }
+
+  async searchDetailAccountStats(req: SearchDetailStatsDto): Promise<SearchTransactionLogsResponse> {
+    const queryConditions = [];
+
+    if (req.searchKeyword) {
+      queryConditions.push(`description:${req.searchKeyword}`);
+    }
+
+    if (req.transaction_type) {
+      queryConditions.push(`transaction_type:${req.transaction_type}`);
+    }
+
+    if (req.id) {
+      queryConditions.push(`account_id:${req.id}`);
+    }
+
+    const queryString = queryConditions.join(' AND ');
+
+    const query: QueryDslContainer[] = [{ range: { transaction_date: { gte: req.startDate, lte: req.endDate } } }];
+
+    if (queryString) {
+      query.push({ query_string: { query: queryString, fields: ['description', 'transaction_type', 'account_id'] } });
+    }
+
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    //@ts-ignore
+    const searchRes: SearchTransactionLogsResponse = await this.elasticsearchService.search<BankTransactionLog>({
+      index: ElasticSearchIndex.BANK_TRANSACTION,
+      body: {
+        from: req.page * 10,
+        size: 10,
+        query: {
+          bool: {
+            must: query,
+          },
+        },
+        sort: [
+          {
+            transaction_date: {
+              order: 'desc',
+            },
+          },
+        ],
+        aggs: {
+          income_sum: {
+            filter: {
+              term: {
+                'transaction_type.keyword': 'INCOME',
+              },
+            },
+            aggs: {
+              total_amount: {
+                sum: {
+                  field: 'amount',
+                },
+              },
+            },
+          },
+          expense_sum: {
+            filter: {
+              term: {
+                'transaction_type.keyword': 'EXPENSE',
               },
             },
             aggs: {
@@ -266,7 +350,7 @@ interface SearchMonthlyCardStatsResponse {
   };
 }
 
-interface SearchTransactionLogsResponse {
+interface SearchPaymentLogsResponse {
   hits: {
     total?: {
       value: number;
@@ -285,6 +369,36 @@ interface SearchTransactionLogsResponse {
       };
     };
     installment_sum?: {
+      doc_count: number;
+      total_amount: {
+        value: number;
+      };
+    };
+    total_sum?: {
+      value: number;
+    };
+  };
+}
+
+interface SearchTransactionLogsResponse {
+  hits: {
+    total?: {
+      value: number;
+      relation: string;
+    };
+
+    hits: {
+      _source?: BankTransactionLog;
+    }[];
+  };
+  aggregations?: {
+    income_sum?: {
+      doc_count: number;
+      total_amount: {
+        value: number;
+      };
+    };
+    expense_sum?: {
       doc_count: number;
       total_amount: {
         value: number;

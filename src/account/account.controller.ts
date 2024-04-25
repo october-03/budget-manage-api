@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { AccountService } from './account.service';
 import { RegisterAccountDto } from '../dto/RegisterAccount.dto';
 import { DefaultResponseDto } from '../dto/DefaultResponse.dto';
@@ -6,6 +6,8 @@ import { BankAccount } from '../entity/account/BankAccount.entity';
 import { ErrorHandler } from '../dto/ErrorHandler.enum';
 import { AddTransactionDto } from 'src/dto/AddTransaction.dto';
 import { SearchMonthlyStatDto } from 'src/dto/SearchMonthlyAccountStat.dto';
+import { SearchBankTransactionLogsDto } from 'src/dto/SearcrBankTransactionLogs.dto';
+import { TransactionType } from 'src/dto/TransactionType.enum';
 
 @Controller('account')
 export class AccountController {
@@ -85,5 +87,31 @@ export class AccountController {
       response.resultCode = e.message;
       return response;
     }
+  }
+
+  @Get('logs')
+  async getTransactionLogs(
+    @Query('startDate') startDate: string,
+    @Query('endDate') endDate: string,
+    @Query('page') page: number,
+    @Query('searchKeyword') searchKeyword: string,
+    @Query('transaction_type') transaction_type: string,
+    @Query('account_id') account_id: number,
+  ): Promise<DefaultResponseDto<SearchBankTransactionLogsDto>> {
+    const response = new DefaultResponseDto<SearchBankTransactionLogsDto>();
+    const res = await this.accountService.searchTransactionLogs({
+      endDate,
+      startDate,
+      page,
+      searchKeyword,
+      transaction_type: TransactionType[transaction_type],
+      id: account_id,
+    });
+
+    response.data = res;
+    response.message = 'Transaction logs retrieved successfully';
+    response.resultCode = '0000';
+
+    return response;
   }
 }

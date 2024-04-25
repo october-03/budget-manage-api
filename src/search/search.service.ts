@@ -3,7 +3,8 @@ import * as dayjs from 'dayjs';
 import { DailyStat, SearchMonthlyStatDto } from 'src/dto/SearchMonthlyAccountStat.dto';
 import { EsService } from './es.service';
 import { SearchCardTransactionLogsDto } from 'src/dto/SearchCardTransactionLogs.dto';
-import { SearchDetailCardStatsDto } from 'src/dto/SearchDetailCardStats.dto';
+import { SearchDetailStatsDto } from 'src/dto/SearchDetailStats.dto';
+import { SearchBankTransactionLogsDto } from 'src/dto/SearcrBankTransactionLogs.dto';
 
 @Injectable()
 export class SearchService {
@@ -74,13 +75,27 @@ export class SearchService {
     return result;
   }
 
-  async searchDetailCardStats(req: SearchDetailCardStatsDto): Promise<SearchCardTransactionLogsDto> {
+  async searchDetailCardStats(req: SearchDetailStatsDto): Promise<SearchCardTransactionLogsDto> {
     const res = await this.esService.searchDetailCardStats(req);
 
     const result: SearchCardTransactionLogsDto = {
       history: res.hits.hits.map((hit) => hit._source),
       full_amount: res.aggregations.full_sum.total_amount.value,
       installments_amount: res.aggregations.installment_sum.total_amount.value,
+      total_amount: res.aggregations.total_sum.value,
+      total_count: res.hits.total.value,
+    };
+
+    return result;
+  }
+
+  async searchDetailBankStats(req: SearchDetailStatsDto): Promise<SearchBankTransactionLogsDto> {
+    const res = await this.esService.searchDetailAccountStats(req);
+
+    const result: SearchBankTransactionLogsDto = {
+      history: res.hits.hits.map((hit) => hit._source),
+      income_amount: res.aggregations.income_sum.total_amount.value,
+      expense_amount: res.aggregations.expense_sum.total_amount.value,
       total_amount: res.aggregations.total_sum.value,
       total_count: res.hits.total.value,
     };

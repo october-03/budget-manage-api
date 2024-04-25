@@ -5,7 +5,7 @@ import { AddCardTransactionDto } from 'src/dto/AddCardTransaction.dto';
 import { CardPaymentType } from 'src/dto/CardPaymentType.dto';
 import { RegisterCardDto } from 'src/dto/RegisterCard.dto';
 import { SearchCardTransactionLogsDto } from 'src/dto/SearchCardTransactionLogs.dto';
-import { SearchDetailCardStatsDto } from 'src/dto/SearchDetailCardStats.dto';
+import { SearchDetailStatsDto } from 'src/dto/SearchDetailStats.dto';
 import { Card } from 'src/entity/card/Card.entity';
 import { CardTransactionLog } from 'src/entity/card/CardTransactionLog.entity';
 import { PaymentInfo } from 'src/entity/card/PaymentInfo.entity';
@@ -105,7 +105,7 @@ export class CardService {
     return card;
   }
 
-  async searchTransactionLogs(req: SearchDetailCardStatsDto): Promise<SearchCardTransactionLogsDto> {
+  async searchTransactionLogs(req: SearchDetailStatsDto): Promise<SearchCardTransactionLogsDto> {
     const res = await this.searchService.searchDetailCardStats(req);
     return res;
   }

@@ -7,6 +7,8 @@ import { BankTransactionLog } from 'src/entity/account/BankTransactionLog.entity
 import { TransactionType } from 'src/dto/TransactionType.enum';
 import { SearchService } from 'src/search/search.service';
 import { SearchMonthlyStatDto } from 'src/dto/SearchMonthlyAccountStat.dto';
+import { SearchDetailStatsDto } from 'src/dto/SearchDetailStats.dto';
+import { SearchBankTransactionLogsDto } from 'src/dto/SearcrBankTransactionLogs.dto';
 
 @Injectable()
 export class AccountService {
@@ -79,5 +81,10 @@ export class AccountService {
 
   async getMonthlyStats(date: string): Promise<SearchMonthlyStatDto> {
     return await this.searchService.searchMonthlyStat(date);
+  }
+
+  async searchTransactionLogs(req: SearchDetailStatsDto): Promise<SearchBankTransactionLogsDto> {
+    const res = await this.searchService.searchDetailBankStats(req);
+    return res;
   }
 }
