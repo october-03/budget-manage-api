@@ -32,8 +32,8 @@ export class EsService {
         query: {
           range: {
             transaction_date: {
-              gte: startDate,
-              lte: endDate,
+              gte: dayjs(startDate).format('YYYY-MM-DDTHH:mm:ss'),
+              lte: dayjs(endDate).format('YYYY-MM-DDTHH:mm:ss'),
             },
           },
         },
@@ -100,8 +100,8 @@ export class EsService {
         query: {
           range: {
             transaction_date: {
-              gte: startDate,
-              lte: endDate,
+              gte: dayjs(startDate).format('YYYY-MM-DDTHH:mm:ss'),
+              lte: dayjs(endDate).format('YYYY-MM-DDTHH:mm:ss'),
             },
           },
         },
@@ -148,7 +148,16 @@ export class EsService {
 
     const queryString = queryConditions.join(' AND ');
 
-    const query: QueryDslContainer[] = [{ range: { transaction_date: { gte: req.startDate, lte: req.endDate } } }];
+    const query: QueryDslContainer[] = [
+      {
+        range: {
+          transaction_date: {
+            gte: dayjs(req.startDate).format('YYYY-MM-DDTHH:mm:ss'),
+            lte: dayjs(req.endDate).format('YYYY-MM-DDTHH:mm:ss'),
+          },
+        },
+      },
+    ];
 
     if (queryString) {
       query.push({ query_string: { query: queryString, fields: ['description', 'payment_type', 'card_id'] } });
@@ -231,7 +240,16 @@ export class EsService {
 
     const queryString = queryConditions.join(' AND ');
 
-    const query: QueryDslContainer[] = [{ range: { transaction_date: { gte: req.startDate, lte: req.endDate } } }];
+    const query: QueryDslContainer[] = [
+      {
+        range: {
+          transaction_date: {
+            gte: dayjs(req.startDate).format('YYYY-MM-DDTHH:mm:ss'),
+            lte: dayjs(req.endDate).format('YYYY-MM-DDTHH:mm:ss'),
+          },
+        },
+      },
+    ];
 
     if (queryString) {
       query.push({ query_string: { query: queryString, fields: ['description', 'transaction_type', 'account_id'] } });
@@ -307,8 +325,8 @@ export class EsService {
         query: {
           range: {
             transaction_date: {
-              gte: startDate,
-              lte: endDate,
+              gte: dayjs(startDate).format('YYYY-MM-DDTHH:mm:ss'),
+              lte: dayjs(endDate).format('YYYY-MM-DDTHH:mm:ss'),
             },
           },
         },
