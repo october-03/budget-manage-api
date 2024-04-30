@@ -5,14 +5,14 @@ services:
     container_name: budget-api
     build: .
     ports:
-      - '63364:3000'
+      - '61901:3000'
     networks:
       - budget-net
     depends_on:
       - db
       - elasticsearch
-    volumes:
-      - .:/app
+    environment:
+      TZ: 'Asia/Seoul'
 
   db:
     container_name: budget-db
@@ -22,8 +22,9 @@ services:
       POSTGRES_USER: ${PG_USER}
       POSTGRES_PASSWORD: ${PG_PASSWORD}
       POSTGRES_DB: ${PG_NAME}
+      TZ: 'Asia/Seoul'
     ports:
-      - '63365:5432'
+      - '51902:5432'
     networks:
       - budget-net
 
@@ -37,6 +38,7 @@ services:
       - discovery.type=single-node
       - bootstrap.memory_lock=true
       - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - TZ=Asia/Seoul
     ulimits:
       memlock:
         soft: -1
