@@ -6,4 +6,5 @@ export interface SearchAllStatsDto {
 interface SearchStats {
   balance: number;
   id: number;
+  name: string;
 }

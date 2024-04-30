@@ -6,10 +6,16 @@ import { SearchCardTransactionLogsDto } from 'src/dto/SearchCardTransactionLogs.
 import { SearchDetailStatsDto } from 'src/dto/SearchDetailStats.dto';
 import { SearchBankTransactionLogsDto } from 'src/dto/SearcrBankTransactionLogs.dto';
 import { SearchAllStatsDto } from 'src/dto/SearchAllStats.dto';
+import { AccountService } from 'src/account/account.service';
+import { CardService } from 'src/card/card.service';
 
 @Injectable()
 export class SearchService {
-  constructor(private readonly esService: EsService) {}
+  constructor(
+    private readonly esService: EsService,
+    private readonly accountService: AccountService,
+    private readonly cardService: CardService,
+  ) {}
 
   async searchMonthlyStat(target: string): Promise<SearchMonthlyStatDto> {
     const endDate = dayjs(target).endOf('month');
@@ -107,16 +113,30 @@ export class SearchService {
   async searchCardList(): Promise<SearchAllStatsDto> {
     const res = await this.esService.searchCardList();
 
-    const data = res.aggregations.card_id.buckets.map((bucket) => {
+    const cards = await this.cardService.findAllCards();
+
+    const data = cards.map((card) => {
+      const bucket = res.aggregations.card_id.buckets.find((bucket) => bucket.key === card.id);
       return {
-        balance: bucket.total_amount.value,
-        id: bucket.key,
+        balance: bucket ? bucket.total_amount.value : 0,
+        id: card.id,
+        name: card.name,
+      };
+    });
+
+    const accounts = await this.accountService.getAccount();
+
+    const bankStats = accounts.map((account) => {
+      return {
+        balance: account.balance,
+        id: account.id,
+        name: account.name,
       };
     });
 
     return {
       card: data,
-      bank: [],
+      bank: bankStats,
     };
   }
 }

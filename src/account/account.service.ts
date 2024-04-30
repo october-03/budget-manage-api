@@ -5,11 +5,6 @@ import { Repository } from 'typeorm';
 import { AddTransactionDto } from 'src/dto/AddTransaction.dto';
 import { BankTransactionLog } from 'src/entity/account/BankTransactionLog.entity';
 import { TransactionType } from 'src/dto/TransactionType.enum';
-import { SearchService } from 'src/search/search.service';
-import { SearchMonthlyStatDto } from 'src/dto/SearchMonthlyAccountStat.dto';
-import { SearchDetailStatsDto } from 'src/dto/SearchDetailStats.dto';
-import { SearchBankTransactionLogsDto } from 'src/dto/SearcrBankTransactionLogs.dto';
-import { SearchAllStatsDto } from 'src/dto/SearchAllStats.dto';
 import { RegisterAccountDto } from 'src/dto/RegisterAccount.dto';
 
 @Injectable()
@@ -20,8 +15,6 @@ export class AccountService {
 
     @InjectRepository(BankTransactionLog)
     private bankTransactionLogRepository: Repository<BankTransactionLog>,
-
-    private readonly searchService: SearchService,
   ) {}
 
   async getBankAccounts(): Promise<BankAccount[]> {
@@ -79,31 +72,5 @@ export class AccountService {
     const result = await this.bankAccountRepository.find();
 
     return result;
-  }
-
-  async getMonthlyStats(date: string): Promise<SearchMonthlyStatDto> {
-    return await this.searchService.searchMonthlyStat(date);
-  }
-
-  async searchTransactionLogs(req: SearchDetailStatsDto): Promise<SearchBankTransactionLogsDto> {
-    const res = await this.searchService.searchDetailBankStats(req);
-    return res;
-  }
-
-  async getMonthAllStats(): Promise<SearchAllStatsDto> {
-    const cardStats = await this.searchService.searchCardList();
-
-    const accounts = await this.bankAccountRepository.find();
-
-    const bankStats = accounts.map((account) => {
-      return {
-        balance: account.balance,
-        id: account.id,
-      };
-    });
-
-    cardStats.bank = bankStats;
-
-    return cardStats;
   }
 }

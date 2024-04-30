@@ -6,11 +6,11 @@ import { Card } from '../entity/card/Card.entity';
 import { PaymentInfo } from '../entity/card/PaymentInfo.entity';
 import { AccountModule } from 'src/account/account.module';
 import { CardTransactionLog } from 'src/entity/card/CardTransactionLog.entity';
-import { SearchModule } from 'src/search/search.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Card, PaymentInfo, CardTransactionLog]), AccountModule, SearchModule],
+  imports: [TypeOrmModule.forFeature([Card, PaymentInfo, CardTransactionLog]), AccountModule],
   controllers: [CardController],
   providers: [CardService],
+  exports: [CardService],
 })
 export class CardModule {}

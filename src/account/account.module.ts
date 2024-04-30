@@ -4,10 +4,9 @@ import { AccountService } from './account.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BankAccount } from '../entity/account/BankAccount.entity';
 import { BankTransactionLog } from 'src/entity/account/BankTransactionLog.entity';
-import { SearchModule } from 'src/search/search.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([BankAccount, BankTransactionLog]), SearchModule],
+  imports: [TypeOrmModule.forFeature([BankAccount, BankTransactionLog])],
   controllers: [AccountController],
   providers: [AccountService],
   exports: [AccountService],

@@ -32,8 +32,8 @@ export class EsService {
         query: {
           range: {
             transaction_date: {
-              gte: dayjs(startDate).format('YYYY-MM-DDTHH:mm:ss'),
-              lte: dayjs(endDate).format('YYYY-MM-DDTHH:mm:ss'),
+              gte: dayjs(startDate).set('hour', 0).set('minute', 0).set('second', 0).format('YYYY-MM-DDTHH:mm:ss'),
+              lte: dayjs(endDate).set('hour', 23).set('minute', 59).set('second', 59).format('YYYY-MM-DDTHH:mm:ss'),
             },
           },
         },
@@ -46,7 +46,7 @@ export class EsService {
             aggs: {
               transaction_types: {
                 terms: {
-                  field: 'transaction_type.keyword',
+                  field: 'transaction_type',
                 },
                 aggs: {
                   total_amount: {
@@ -61,7 +61,7 @@ export class EsService {
           expense_sum: {
             filter: {
               term: {
-                'transaction_type.keyword': 'EXPENSE',
+                transaction_type: 'EXPENSE',
               },
             },
             aggs: {
@@ -75,7 +75,7 @@ export class EsService {
           income_sum: {
             filter: {
               term: {
-                'transaction_type.keyword': 'INCOME',
+                transaction_type: 'INCOME',
               },
             },
             aggs: {
@@ -100,8 +100,8 @@ export class EsService {
         query: {
           range: {
             transaction_date: {
-              gte: dayjs(startDate).format('YYYY-MM-DDTHH:mm:ss'),
-              lte: dayjs(endDate).format('YYYY-MM-DDTHH:mm:ss'),
+              gte: dayjs(startDate).set('hour', 0).set('minute', 0).set('second', 0).format('YYYY-MM-DDTHH:mm:ss'),
+              lte: dayjs(endDate).set('hour', 23).set('minute', 59).set('second', 59).format('YYYY-MM-DDTHH:mm:ss'),
             },
           },
         },
@@ -152,8 +152,8 @@ export class EsService {
       {
         range: {
           transaction_date: {
-            gte: dayjs(req.startDate).format('YYYY-MM-DDTHH:mm:ss'),
-            lte: dayjs(req.endDate).format('YYYY-MM-DDTHH:mm:ss'),
+            gte: dayjs(req.startDate).set('hour', 0).set('minute', 0).set('second', 0).format('YYYY-MM-DDTHH:mm:ss'),
+            lte: dayjs(req.endDate).set('hour', 23).set('minute', 59).set('second', 59).format('YYYY-MM-DDTHH:mm:ss'),
           },
         },
       },
@@ -186,7 +186,7 @@ export class EsService {
           full_sum: {
             filter: {
               term: {
-                'payment_type.keyword': 'FULL',
+                payment_type: 'FULL',
               },
             },
             aggs: {
@@ -200,7 +200,7 @@ export class EsService {
           installment_sum: {
             filter: {
               term: {
-                'payment_type.keyword': 'INSTALLMENTS',
+                payment_type: 'INSTALLMENTS',
               },
             },
             aggs: {
@@ -244,8 +244,8 @@ export class EsService {
       {
         range: {
           transaction_date: {
-            gte: dayjs(req.startDate).format('YYYY-MM-DDTHH:mm:ss'),
-            lte: dayjs(req.endDate).format('YYYY-MM-DDTHH:mm:ss'),
+            gte: dayjs(req.startDate).set('hour', 0).set('minute', 0).set('second', 0).format('YYYY-MM-DDTHH:mm:ss'),
+            lte: dayjs(req.endDate).set('hour', 23).set('minute', 59).set('second', 59).format('YYYY-MM-DDTHH:mm:ss'),
           },
         },
       },
@@ -278,7 +278,7 @@ export class EsService {
           income_sum: {
             filter: {
               term: {
-                'transaction_type.keyword': 'INCOME',
+                transaction_type: 'INCOME',
               },
             },
             aggs: {
@@ -292,7 +292,7 @@ export class EsService {
           expense_sum: {
             filter: {
               term: {
-                'transaction_type.keyword': 'EXPENSE',
+                transaction_type: 'EXPENSE',
               },
             },
             aggs: {
@@ -303,16 +303,21 @@ export class EsService {
               },
             },
           },
-          total_sum: {
-            sum: {
-              field: 'amount',
-            },
-          },
         },
       },
     });
 
-    return searchRes;
+    return {
+      ...searchRes,
+      aggregations: {
+        ...searchRes.aggregations,
+        total_sum: {
+          value:
+            searchRes.aggregations.income_sum.total_amount.value -
+            searchRes.aggregations.expense_sum.total_amount.value,
+        },
+      },
+    };
   }
 
   async searchCardList(): Promise<SearchAllStatsResponse> {
@@ -325,8 +330,8 @@ export class EsService {
         query: {
           range: {
             transaction_date: {
-              gte: dayjs(startDate).format('YYYY-MM-DDTHH:mm:ss'),
-              lte: dayjs(endDate).format('YYYY-MM-DDTHH:mm:ss'),
+              gte: dayjs(startDate).set('hour', 0).set('minute', 0).set('second', 0).format('YYYY-MM-DDTHH:mm:ss'),
+              lte: dayjs(endDate).set('hour', 23).set('minute', 59).set('second', 59).format('YYYY-MM-DDTHH:mm:ss'),
             },
           },
         },
