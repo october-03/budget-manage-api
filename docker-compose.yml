@@ -5,24 +5,46 @@ services:
     container_name: budget-api
     build: .
     ports:
-      - "63364:3000"
+      - '61901:3000'
     networks:
       - budget-net
     depends_on:
       - db
-    volumes:
-      - .:/app
+      - elasticsearch
+    environment:
+      TZ: 'Asia/Seoul'
 
   db:
     container_name: budget-db
-    image: postgres:16.2-alpine3.19
+    build:
+      context: postgres
     environment:
-      POSTGRES_USER: budget-manager
-      POSTGRES_PASSWORD: BudgetManager123
-      POSTGRES_DB: budget
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+      POSTGRES_DB: ${PG_NAME}
+      TZ: 'Asia/Seoul'
     ports:
-      - "63365:5432"
+      - '51902:5432'
     networks:
       - budget-net
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.8.1
+    ports:
+      - 9200:9200
+      - 9300:9300
+    environment:
+      - xpack.security.enabled=false
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - TZ=Asia/Seoul
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    networks:
+      - budget-net
+
 networks:
   budget-net:
